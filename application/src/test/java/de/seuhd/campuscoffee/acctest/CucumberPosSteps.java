@@ -91,7 +91,11 @@ public class CucumberPosSteps {
         assertThat(retrievedPosList).isEmpty();
     }
 
-    // TODO: Add Given step for new scenario
+    @Given("the POS list with the following elements")
+    public void thePOSListWithTheFollowingElements(List<PosDto> posList) {
+        createdPosList = createPos(posList);
+        assertThat(createdPosList).size().isEqualTo(posList.size());
+    }
 
     // When -----------------------------------------------------------------------
 
@@ -101,7 +105,14 @@ public class CucumberPosSteps {
         assertThat(createdPosList).size().isEqualTo(posList.size());
     }
 
-    // TODO: Add When step for new scenario
+    @When("the description of {string} is updated to {string} using its name")
+    public void theDescriptionOfOneOfThePOSIsUpdatedUsingItsName(String name, String newDescription) {
+        PosDto oldpos = retrievePosByName(name);
+        updatedPos = oldpos.toBuilder()
+                .description(newDescription)
+                .build();
+        updatePos(List.of(updatedPos));
+    }
 
     // Then -----------------------------------------------------------------------
 
@@ -113,5 +124,16 @@ public class CucumberPosSteps {
                 .containsExactlyInAnyOrderElementsOf(createdPosList);
     }
 
-    // TODO: Add Then step for new scenario
+    @Then("the POS list should contain the same elements but with description {string} for POS {string}")
+    public void thePOSListShouldContainTheSameElementsInTheSameOrder(String newDescription, String name) {
+        PosDto retrievedPos = retrievePosByName(name);
+
+        assertThat(retrievedPos.description()).isEqualTo(newDescription);
+
+        assertThat(retrievedPos)
+                .usingRecursiveComparison()
+                .ignoringFields("id", "createdAt", "updatedAt")
+                .isEqualTo(updatedPos);
+
+    }
 }
